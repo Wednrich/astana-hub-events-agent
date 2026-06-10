@@ -1,7 +1,10 @@
 "use client";
 
+import { useTheme } from "@/hooks/useTheme";
 import { City, ALL_CITIES, CITY_LABELS } from "@/types";
 import { ThemeToggle } from "./ThemeToggle";
+import { LogoPlaceholder } from "./LogoPlaceholder";
+import Image from "next/image";
 
 interface HeaderProps {
   selectedCity: City;
@@ -9,6 +12,9 @@ interface HeaderProps {
 }
 
 export function Header({ selectedCity, onCityChange }: HeaderProps) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   return (
     <header
       className="sticky top-0 z-10 w-full border-b backdrop-blur-md"
@@ -21,19 +27,17 @@ export function Header({ selectedCity, onCityChange }: HeaderProps) {
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-3 sm:flex-row sm:gap-0 sm:py-4">
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <div
-            className="flex h-9 w-9 items-center justify-center rounded-lg"
-            style={{ backgroundColor: "var(--icon-color)" }}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="white"
-              className="h-5 w-5"
-            >
-              <path d="M4.913 2.658c2.075-.27 4.19-.408 6.337-.408 2.147 0 4.262.139 6.337.408 1.922.25 3.291 1.861 3.405 3.727a4.403 4.403 0 00-1.032-.211 50.89 50.89 0 00-8.42 0c-2.358.196-4.04 2.19-4.04 4.434v4.286a4.47 4.47 0 002.433 3.984L7.28 21.53A.75.75 0 016 21v-6.568a4.47 4.47 0 00-1.5-3.272c-.173-.166-.358-.318-.557-.453C2.453 9.913 2 8.965 2 8c0-2.086 1.394-3.872 3.013-4.342z" />
-            </svg>
-          </div>
+          <Image
+  src={
+    isDark
+      ? "/astana_hub_dark_logo.jpg"
+      : "/astana_hub_light_logo.jpg"
+  }
+  alt="Astana Hub"
+  width={40}
+  height={40}
+  priority
+/>
           <h1
             className="text-lg font-bold sm:text-xl"
             style={{ color: "var(--text-primary)" }}

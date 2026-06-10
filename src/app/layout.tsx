@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ThemeProvider } from "@/components/ThemeProvider";
+import { ThemeProvider } from "../components/ThemeProvider";
+import { SplashScreen } from "../components/SplashScreen";
 
 export const metadata: Metadata = {
   title: "Hub Events Agent",
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="ru" suppressHydrationWarning>
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <SplashScreen>{children}</SplashScreen>
+        </ThemeProvider>
       </body>
     </html>
   );

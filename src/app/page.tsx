@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Header } from "@/components/Header";
-import { ChatContainer } from "@/components/ChatContainer";
-import { EventsSection } from "@/components/EventsSection";
-import { Message, City, HubEvent, CITY_LABELS } from "@/types";
+import { Header } from "../components/Header";
+import { ChatContainer } from "../components/ChatContainer";
+import { EventsSection } from "../components/EventsSection";
+import { AgentAvatar, AgentState } from "../components/AgentAvatar";
+import { Message, City, HubEvent, CITY_LABELS } from "../types";
 
 type ChatApiSource = "openai" | "groq" | "gemini" | "openrouter" | "local";
 
@@ -37,6 +38,7 @@ export default function Home() {
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [agentState, setAgentState] = useState<AgentState>("idle");
 
   const handleSend = async (content: string) => {
     const userMsg: Message = {
@@ -47,12 +49,14 @@ export default function Home() {
     };
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
+    setAgentState("thinking");
 
     const history = [...messages, userMsg]
       .slice(-6)
       .map((m) => ({ role: m.role, content: m.content }));
 
     try {
+      setAgentState("responding");
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -67,14 +71,11 @@ export default function Home() {
 
       const data = (await res.json()) as ChatApiResponse;
 
-      const tag =
-        data.source === "local"
-          ? ""
-          : `\n\n<sub>🧠 ${SOURCE_LABEL[data.source]}</sub>`;
+      // Display clean message without any metadata or source tags
       const agentMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: "agent",
-        content: `${data.reply}${tag}`,
+        content: data.reply,
         timestamp: data.timestamp,
       };
       setMessages((prev) => [...prev, agentMsg]);
@@ -82,6 +83,9 @@ export default function Home() {
       if (data.city && data.city !== selectedCity) {
         setSelectedCity(data.city);
       }
+
+      setAgentState("ready");
+      setTimeout(() => setAgentState("idle"), 1500);
     } catch {
       const agentMsg: Message = {
         id: (Date.now() + 1).toString(),
@@ -91,6 +95,7 @@ export default function Home() {
         timestamp: Date.now(),
       };
       setMessages((prev) => [...prev, agentMsg]);
+      setAgentState("idle");
     } finally {
       setIsLoading(false);
     }
@@ -114,13 +119,30 @@ export default function Home() {
     >
       <Header selectedCity={selectedCity} onCityChange={handleCityChange} />
 
-      <main className="mx-auto w-full max-w-6xl animate-theme-fade px-4 py-6 sm:py-10">
+      <main className="mx-auto w-full max-w-7xl animate-theme-fade px-4 py-6 sm:py-10">
         <div className="mb-6 sm:mb-8">
-          <ChatContainer
-            messages={messages}
-            onSend={handleSend}
-            isLoading={isLoading}
-          />
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+            <div className="flex-1">
+              <ChatContainer
+                messages={messages}
+                onSend={handleSend}
+                isLoading={isLoading}
+              />
+            </div>
+
+            <div className="flex justify-center lg:w-64 lg:justify-start">
+              <div
+                className="rounded-2xl border p-6"
+                style={{
+                  backgroundColor: "var(--bg-agent-msg)",
+                  borderColor: "var(--border-color)",
+                  boxShadow: "var(--card-shadow)",
+                }}
+              >
+                <AgentAvatar state={agentState} />
+              </div>
+            </div>
+          </div>
         </div>
 
         <EventsSection city={selectedCity} />

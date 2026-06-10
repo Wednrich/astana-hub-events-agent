@@ -50,13 +50,16 @@ type ChatBody = {
   history?: { role: "user" | "agent"; content: string }[];
 };
 
+type ChatSource = "openai" | "groq" | "gemini" | "openrouter" | "local";
+
 type ChatResponse = {
   city: City;
   cityLabel: string;
   reply: string;
   events: HubEvent[];
   team: typeof mockTeam[City];
-  source: "openai" | "groq" | "gemini" | "openrouter" | "local";
+  source: ChatSource;
+  providerErrors?: { provider: ChatSource; error: string }[];
   timestamp: number;
 };
 
@@ -72,15 +75,13 @@ function localReply(input: string, city: City): string {
     lower.includes("event")
   ) {
     if (events.length === 0)
-      return `В городе ${label} пока нет актуальных событий. Загляни позже 🌟`;
-    const list = events
-      .slice(0, 5)
-      .map(
-        (e, i) =>
-          `${i + 1}. ${e.title} — ${e.date}${e.time ? " в " + e.time : ""}`
-      )
-      .join("\n");
-    return `Ближайшие события в ${label}:\n\n${list}\n\nХочешь узнать подробности о каком-то из них?`;
+      return `Нет данных по этому запросу.`;
+    const topThreeEvents = events.slice(0, 3);
+    if (topThreeEvents.length === 0) {
+      return `Город: ${label}\n\nНет ближайших событий`;
+    }
+    const eventList = topThreeEvents.map((e, i) => `${i + 1}. ${e.title} ${e.date}`).join("\n");
+    return `Город: ${label}\n\nБлижайшие события:\n${eventList}`;
   }
   if (
     lower.includes("команд") ||
@@ -88,19 +89,27 @@ function localReply(input: string, city: City): string {
     lower.includes("связ")
   ) {
     if (team.length === 0)
-      return `Команда Astana Hub в ${label} скоро появится в базе — а пока можешь подписаться на их Instagram.`;
-    const list = team
-      .map((m) => `• ${m.name} — ${m.role} (${m.contact})`)
+      return `Нет данных по этому запросу.`;
+    const teamList = team
+      .map((m, i) => `${i + 1}. ${m.name} - ${m.role} (${m.contact})`)
       .join("\n");
-    return `Команда Astana Hub в ${label}:\n\n${list}`;
+    return `Город: ${label}\n\nКоманда:\n${teamList}`;
   }
   if (lower.includes("привет") || lower.includes("hello") || lower.includes("hi")) {
-    return `Привет! 👋 Я AI-агент Astana Hub. Я знаю события и команду в городах: ${ALL_CITIES.map((c) => CITY_LABELS[c]).join(", ")}. Что тебя интересует?`;
+    const topThreeEvents = events.slice(0, 3);
+    if (topThreeEvents.length === 0) {
+      return `Город: ${label}\n\nНет ближайших событий`;
+    }
+    const eventList = topThreeEvents.map((e, i) => `${i + 1}. ${e.title} ${e.date}`).join("\n");
+    return `Город: ${label}\n\nБлижайшие события:\n${eventList}`;
   }
   if (lower.includes("спасибо") || lower.includes("thanks")) {
     return "Всегда пожалуйста! 😊";
   }
-  return `Я могу помочь с информацией о событиях и команде Astana Hub в городе ${label}. Попробуй спросить: «Какие события в ${label}?» или «Расскажи о команде».`;
+  if (lower.includes("другой город")) {
+    return `Сейчас выбран город ${label}. Хотите переключить город?`;
+  }
+  return `Нет данных по этому запросу.`;
 }
 
 function systemPrompt(city: City): string {
@@ -111,7 +120,7 @@ function systemPrompt(city: City): string {
     .join("\n");
 
   return [
-    `Ты — Hub Events Agent, дружелюбный русскоязычный AI-ассистент международной техноплатформы Astana Hub.`,
+    `Ты — Hub Events Agent, дружелюбный русскоязычный ассистент международной техноплатформы Astana Hub.`,
     `Текущий выбранный город пользователя: ${CITY_LABELS[city]}.`,
     `Твоя задача — помогать находить ближайшие события и знакомить с командой Astana Hub в выбранном городе.`,
     ``,
@@ -121,13 +130,106 @@ function systemPrompt(city: City): string {
     `БАЗА КОМАНДЫ (${CITY_LABELS[city]}):`,
     teamList || "— пока нет данных о команде —",
     ``,
-    `Правила:`,
-    `- Отвечай ТОЛЬКО на русском языке, кратко и по делу (2–6 предложений).`,
-    `- Используй только факты из базы выше. Ничего не выдумывай.`,
-    `- Если пользователь спрашивает про другой город — упомяни, что сейчас выбран ${CITY_LABELS[city]}, и предложи переключить.`,
-    `- Если пользователь здоровается, перечисли 2–3 ближайших события.`,
-    `- В конце можешь задать один уточняющий вопрос.`,
+    `Ты — Hub Events Agent, ассистент Astana Hub.`,
+`Отвечай ТОЛЬКО текстом.`,
+`Запрещено: JSON, HTML, markdown, теги, эмодзи, служебные подписи.`,
+`Если данных нет — скажи: "Нет данных по этому запросу."`,
+    ``,
+    `Правила для текста внутри поля reply:`,
+    `- Отвечай ТОЛЬКО на русском языке.`,
+    `- НЕ галлюцинируй события, даты или людей. Используй только предоставленный контекст.`,
+    `- Если информация отсутствует, ответь: "Нет данных по этому запросу."`,
+    `- Максимум 2-5 коротких предложений.`,
+    `- Без списков, если явно не попросят.`,
+    `- Без markdown, HTML, тегов внутри текста.`,
+    `- Если пользователь упоминает другой город, НЕ переключайся автоматически. Скажи: "Сейчас выбран город ${CITY_LABELS[city]}. Хотите переключить город?"`,
+    `- Если пользователь здоровается, дай 2-3 ближайших события.`,
+    `- Если пользователь спрашивает о событиях, суммируй только из списка событий.`,
+    `- Если пользователь спрашивает о команде, покажи только список команды.`,
+    `- Если пользователь задает общие вопросы, придерживайся контекста Astana Hub.`,
+    `- Никогда не добавляй внешние знания.`,
+    `- Никогда не приукрашивай.`,
+    `- Строго придерживайся предоставленных данных.`,
   ].join("\n");
+}
+
+/**
+ * STRICT output sanitization layer
+ * Removes ALL metadata, system artifacts, HTML/XML tags, and debug content
+ */
+function sanitizeLLMResponse(text: string): string {
+  if (!text) return text;
+
+  let cleanText = text;
+
+  // 1. Remove HTML/XML tags with content (like <sub>, <think>, <debug>, etc.)
+  cleanText = cleanText.replace(/<sub[\s\S]*?<\/sub>/gi, "");
+  cleanText = cleanText.replace(/<think[\s\S]*?<\/think>/gi, "");
+  cleanText = cleanText.replace(/<debug[\s\S]*?<\/debug>/gi, "");
+  cleanText = cleanText.replace(/<meta[\s\S]*?<\/meta>/gi, "");
+  cleanText = cleanText.replace(/<log[\s\S]*?<\/log>/gi, "");
+  
+  // 2. Decode HTML entities before further cleaning
+  cleanText = cleanText
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+
+  // 3. Remove code blocks (markdown style)
+  cleanText = cleanText.replace(/```[\s\S]*?```/g, "");
+  cleanText = cleanText.replace(/`[^`]+`/g, "");
+
+  // 4. Remove JSON objects (likely debug/metadata)
+  cleanText = cleanText.replace(/\{[\s\S]*?\}/g, (match) => {
+    try {
+      JSON.parse(match);
+      return ""; // It's valid JSON, remove it
+    } catch {
+      return match; // Not JSON, keep it
+    }
+  });
+
+  // 5. Remove ANY remaining HTML/XML tags
+  cleanText = cleanText.replace(/<[^>]+>/g, "");
+
+  // 6. Remove model/provider identifiers and system terms
+  const bannedTerms = [
+    "Groq",
+    "OpenAI",
+    "Gemini",
+    "OpenRouter",
+    "assistant",
+    "Hub Events Agent",
+    "model:",
+    "provider:",
+    "source:",
+  ];
+  for (const term of bannedTerms) {
+    cleanText = cleanText.replace(new RegExp(term, "gi"), "");
+  }
+
+  // 7. Remove "AI" only as standalone word (preserve names like "Aizada")
+  cleanText = cleanText.replace(/\bAI\b/gi, "");
+
+  // 8. Remove emoji brackets commonly used as tags (🧠, 🔧, ⚙️, etc.)
+  const emojiTags = ["🧠", "🔧", "⚙️", "🤖", "💭", "📝", "🎯"];
+  for (const emoji of emojiTags) {
+    cleanText = cleanText.replace(new RegExp(emoji, "g"), "");
+  }
+
+  // 9. Remove common debug/log prefixes
+  cleanText = cleanText.replace(/^(DEBUG|LOG|INFO|ERROR|WARN):\s*/gim, "");
+  
+  // 10. Clean up multiple spaces, newlines, and trim
+  cleanText = cleanText
+    .replace(/\n{3,}/g, "\n\n") // Max 2 consecutive newlines
+    .replace(/\s+/g, " ") // Multiple spaces to single space
+    .replace(/\s*\n\s*/g, "\n") // Clean spaces around newlines
+    .trim();
+
+  return cleanText;
 }
 
 async function callOpenAICompatible(
@@ -139,6 +241,7 @@ async function callOpenAICompatible(
 ): Promise<string> {
   const res = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
+    cache: "no-store",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
@@ -153,13 +256,13 @@ async function callOpenAICompatible(
   });
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`OpenAI-compat API ${res.status}: ${text.slice(0, 200)}`);
+    throw new Error(`HTTP ${res.status}: ${text.slice(0, 200)}`);
   }
   const data = (await res.json()) as {
     choices?: { message?: { content?: string } }[];
   };
   const content = data.choices?.[0]?.message?.content;
-  if (!content) throw new Error("OpenAI-compat: empty response");
+  if (!content) throw new Error("empty response from provider");
   return content;
 }
 
@@ -169,10 +272,22 @@ async function callGemini(
   system: string,
   userMessage: string
 ): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  // Gemini API supports two auth methods:
+  //   1) ?key=API_KEY  (for standard API keys like AIzaSy...)
+  //   2) Authorization: Bearer TOKEN  (for OAuth access tokens like ya29.... or gcloud ADC tokens)
+  // Detect which one we have:
+  const looksLikeApiKey = /^AIza[0-9A-Za-z_-]{35}$/.test(apiKey);
+  const url = looksLikeApiKey
+    ? `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
+    : `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (!looksLikeApiKey) {
+    headers["Authorization"] = `Bearer ${apiKey}`;
+  }
+
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: system }] },
       contents: [{ role: "user", parts: [{ text: userMessage }] }],
@@ -181,13 +296,13 @@ async function callGemini(
   });
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`Gemini API ${res.status}: ${text.slice(0, 200)}`);
+    throw new Error(`HTTP ${res.status}: ${text.slice(0, 200)}`);
   }
   const data = (await res.json()) as {
     candidates?: { content?: { parts?: { text?: string }[] } }[];
   };
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error("Gemini: empty response");
+  if (!text) throw new Error("empty response from Gemini");
   return text;
 }
 
@@ -199,11 +314,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Некорректный JSON" }, { status: 400 });
   }
 
-  const message = (body.message ?? "").trim();
+  const message = body.message?.trim();
   const requestedCity = body.city ?? "Astana";
 
-  if (!message) {
-    return NextResponse.json({ error: "Поле 'message' обязательно" }, { status: 400 });
+  if (!message || message.length < 2) {
+    return NextResponse.json({ error: "Поле 'message' обязательно и должно содержать не менее 2 символов" }, { status: 400 });
   }
   if (!isValidCity(requestedCity)) {
     return NextResponse.json(
@@ -227,72 +342,101 @@ export async function POST(req: NextRequest) {
   ];
 
   let reply: string | null = null;
-  let source: ChatResponse["source"] = "local";
+  let source: ChatSource = "local";
+  const providerErrors: { provider: ChatSource; error: string }[] = [];
 
-  if (!reply && process.env.OPENAI_API_KEY) {
-    try {
-      reply = await callOpenAICompatible(
-        "https://api.openai.com/v1",
-        process.env.OPENAI_API_KEY,
-        process.env.OPENAI_MODEL || "gpt-4o-mini",
-        messages
-      );
-      source = "openai";
-    } catch (e) {
-      console.error("OpenAI failed:", e);
-    }
-  }
+  // For debugging, let's see which keys are available
+  console.log('--- AI Provider Key Check ---');
+  console.log(`OpenAI Key available: ${!!process.env.OPENAI_API_KEY}`);
+  console.log(`Groq Key available: ${!!process.env.GROQ_API_KEY}`);
+  console.log(`OpenRouter Key available: ${!!process.env.OPENROUTER_API_KEY}`);
+  console.log(`Gemini Key available: ${!!process.env.GEMINI_API_KEY}`);
+  console.log('-----------------------------');
 
-  if (!reply && process.env.GROQ_API_KEY) {
-    try {
-      reply = await callOpenAICompatible(
-        process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1",
-        process.env.GROQ_API_KEY,
-        process.env.GROQ_MODEL || "llama-3.1-70b-versatile",
-        messages
-      );
-      source = "groq";
-    } catch (e) {
-      console.error("Groq failed:", e);
-    }
-  }
-
-  if (!reply && process.env.OPENROUTER_API_KEY) {
-    try {
-      reply = await callOpenAICompatible(
+  const providerChain: { name: ChatSource, enabled: boolean, call: () => Promise<string> }[] = [
+    {
+      name: 'openai',
+      enabled: !!process.env.OPENAI_API_KEY,
+      call: () => callOpenAICompatible("https://api.openai.com/v1", process.env.OPENAI_API_KEY!, process.env.OPENAI_MODEL || "gpt-4o-mini", messages),
+    },
+    {
+      name: 'groq',
+      enabled: !!process.env.GROQ_API_KEY,
+      call: () => callOpenAICompatible(process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1", process.env.GROQ_API_KEY!, process.env.GROQ_MODEL || "llama-3.1-70b-versatile", messages),
+    },
+    {
+      name: 'openrouter',
+      enabled: !!process.env.OPENROUTER_API_KEY,
+      call: () => callOpenAICompatible(
         process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1",
-        process.env.OPENROUTER_API_KEY,
+        process.env.OPENROUTER_API_KEY!,
         process.env.OPENROUTER_MODEL || "meta-llama/llama-3.1-8b-instruct:free",
         messages,
         {
           "HTTP-Referer": process.env.OPENROUTER_REFERER || "http://localhost:3000",
           "X-Title": process.env.OPENROUTER_TITLE || "Hub Events Agent",
         }
-      );
-      source = "openrouter";
-    } catch (e) {
-      console.error("OpenRouter failed:", e);
+      ),
+    },
+    {
+      name: 'gemini',
+      enabled: !!process.env.GEMINI_API_KEY,
+      call: () => callGemini(process.env.GEMINI_API_KEY!, process.env.GEMINI_MODEL || "gemini-1.5-flash", system, message as string),
+    },
+  ];
+
+  for (const provider of providerChain) {
+    if (provider.enabled && !reply) {
+      try {
+        console.log(`Attempting to call provider: ${provider.name}`);
+        // Log the actual API call details (excluding sensitive API keys)
+        if (provider.name === 'openai') {
+          console.log(`OpenAI API Call: Model - ${process.env.OPENAI_MODEL || "gpt-4o-mini"}`);
+        } else if (provider.name === 'groq') {
+          console.log(`Groq API Call: Base URL - ${process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1"}, Model - ${process.env.GROQ_MODEL || "llama-3.3-70b-versatile"}`);
+        } else if (provider.name === 'openrouter') {
+          console.log(`OpenRouter API Call: Base URL - ${process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1"}, Model - ${process.env.OPENROUTER_MODEL || "openai/gpt-3.5-turbo"}`);
+        } else if (provider.name === 'gemini') {
+          console.log(`Gemini API Call: Model - ${process.env.GEMINI_MODEL || "gemini-1.5-flash"}`);
+        }
+
+        reply = await provider.call();
+        source = provider.name;
+        console.log(`Successfully received reply from ${provider.name}. Reply: ${reply.substring(0, 100)}...`);
+      } catch (e) {
+        const err = e instanceof Error ? e.message : String(e);
+        console.error(`Provider ${provider.name} failed:`, err);
+        providerErrors.push({ provider: provider.name, error: err });
+      }
     }
   }
-
-  if (!reply && process.env.GEMINI_API_KEY) {
-    try {
-      reply = await callGemini(
-        process.env.GEMINI_API_KEY,
-        process.env.GEMINI_MODEL || "gemini-1.5-flash",
-        system,
-        message
-      );
-      source = "gemini";
-    } catch (e) {
-      console.error("Gemini failed:", e);
-    }
-  }
-
+console.log("ENV TEST:", process.env.OPENAI_API_KEY);
   if (!reply) {
+    console.log('All AI providers failed. Falling back to local reply.');
     reply = localReply(message, city);
     source = "local";
+  } else {
+    let cleanReply = reply.trim();
+
+    if (cleanReply.startsWith("```json")) {
+      cleanReply = cleanReply.replace(/^```json/, "").replace(/```$/, "").trim();
+    } else if (cleanReply.startsWith("```")) {
+      cleanReply = cleanReply.replace(/^```/, "").replace(/```$/, "").trim();
+    }
+
+    if (cleanReply.startsWith("{") && cleanReply.endsWith("}")) {
+      try {
+        const data = JSON.parse(cleanReply);
+        if (data && typeof data.reply === "string") {
+          reply = data.reply;
+        }
+      } catch {
+        // Plain text response; keep raw reply without logging parse failure.
+      }
+    }
   }
+
+  reply = sanitizeLLMResponse(reply || "");
 
   const response: ChatResponse = {
     city,
@@ -303,6 +447,10 @@ export async function POST(req: NextRequest) {
     source,
     timestamp: Date.now(),
   };
+
+  if (providerErrors.length > 0) {
+    response.providerErrors = providerErrors;
+  }
 
   return NextResponse.json(response);
 }
