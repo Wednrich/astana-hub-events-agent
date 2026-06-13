@@ -32,7 +32,7 @@ const chipVariants = {
     opacity: 1,
     scale: 1,
     y: 0,
-    transition: { duration: 0.3, ease: "easeOut" as const },
+    transition: { duration: 0.3 },
   },
 } as const;
 
