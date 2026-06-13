@@ -1,6 +1,5 @@
 import type { Event, TeamMember, City } from "@/types";
-import * as fs from "fs";
-import * as path from "path";
+import staffDataRaw from "./staff.json";
 
 interface StaffMember {
   name: string;
@@ -42,7 +41,7 @@ const HUB_TO_CITY: Record<string, City> = {
   "Oskemen Hub": "Oskemen",
   "SKO Hub": "Petropavl",
   "ALATAU HUB": "Alatau",
-  "Zhambyl Hub": "Taraz", // Zhambyl hub, falls under Taraz/Zhambyl region
+  "Zhambyl Hub": "Taraz",
   "Aktau Hub": "Aktau",
   "Atyrau Hub": "Atyrau",
   "Taraz Hub": "Taraz",
@@ -58,31 +57,6 @@ const EXTRA_HUBS: string[] = [
   "Terricon Valley", // Караганда
 ];
 
-let _staffData: StaffData | null = null;
-
-function getStaffData(): StaffData {
-  if (!_staffData) {
-    try {
-      _staffData = JSON.parse(
-        fs.readFileSync(
-          path.join(process.cwd(), "src", "data", "staff.json"),
-          "utf-8"
-        )
-      ) as StaffData;
-    } catch {
-      _staffData = {
-        astana_hub_central: {
-          organization: "Astana Hub",
-          mission: "",
-          team: [],
-        },
-        regional_hubs_and_partners: [],
-      };
-    }
-  }
-  return _staffData;
-}
-
 /**
  * Build mockTeam from real staff.json data.
  * Each known city gets its director/leader + all central team for Astana.
@@ -90,7 +64,7 @@ function getStaffData(): StaffData {
 export const mockTeam: Record<City, TeamMember[]> = buildMockTeam();
 
 function buildMockTeam(): Record<City, TeamMember[]> {
-  const data = getStaffData();
+  const data = staffDataRaw as StaffData;
   const team: Record<City, TeamMember[]> = {
     Astana: [],
     Almaty: [],

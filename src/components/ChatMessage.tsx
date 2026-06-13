@@ -49,22 +49,6 @@ export function ChatMessage({ message }: ChatMessageProps) {
       >
         {message.content}
       </div>
-
-      {!isUser && (
-  <div className="mt-1 shrink-0">
-    <Image
-      src={
-        theme === "dark"
-          ? "/astana_hub_dark_logo.jpg"
-          : "/astana_hub_light_logo.jpg"
-      }
-      alt="Astana Hub"
-      width={32}
-      height={32}
-      className="rounded-full"
-    />
-  </div>
-)}
     </div>
   );
 }

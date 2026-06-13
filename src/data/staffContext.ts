@@ -1,5 +1,4 @@
-import * as fs from "fs";
-import * as path from "path";
+import staffDataRaw from "./staff.json";
 
 interface StaffMember {
   name: string;
@@ -27,22 +26,10 @@ interface StaffData {
   regional_hubs_and_partners: RegionalHub[];
 }
 
-let _staffData: StaffData | null = null;
-
-function getStaffData(): StaffData {
-  if (!_staffData) {
-    _staffData = JSON.parse(
-      fs.readFileSync(
-        path.join(process.cwd(), "src", "data", "staff.json"),
-        "utf-8"
-      )
-    ) as StaffData;
-  }
-  return _staffData;
-}
+const _staffData = staffDataRaw as StaffData;
 
 export function formatStaffForPrompt(): string {
-  const d = getStaffData();
+  const d = _staffData;
   const lines: string[] = [
     "ЦЕНТРАЛЬНАЯ КОМАНДА ASTANA HUB:",
     `Организация: ${d.astana_hub_central.organization}`,
