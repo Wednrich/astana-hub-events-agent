@@ -32,9 +32,9 @@ const chipVariants = {
     opacity: 1,
     scale: 1,
     y: 0,
-    transition: { duration: 0.3, ease: "easeOut" },
+    transition: { duration: 0.3, ease: "easeOut" as const },
   },
-};
+} as const;
 
 const chipTapVariants = {
   tap: { scale: 0.95, opacity: 0.8 },
