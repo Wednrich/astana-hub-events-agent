@@ -6,11 +6,12 @@ function isValidCity(c: string): c is City {
   return [
     "Astana", "Almaty", "Shymkent", "Qostanai", "Pavlodar", "Semey",
     "Turkistan", "Taldykorgan", "Zhezkazgan", "Oskemen", "Petropavl", "Alatau",
+    "Oral", "Aktau", "Taraz", "Atyrau",
   ].includes(c);
 }
 
-const posts: HubEventPost[] = (rawEvents as HubEventPost[]).filter((p) =>
-  isValidCity(p.city)
+const posts: HubEventPost[] = (rawEvents as HubEventPost[]).filter(
+  (p) => isValidCity(p.city) && p.caption != null && p.caption !== ""
 );
 
 /** Split the first line of the caption (used as a title). */

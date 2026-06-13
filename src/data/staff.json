@@ -1,0 +1,330 @@
+{
+  "astana_hub_central": {
+    "organization": "Astana Hub",
+    "mission": "Через саморазвитие и самореализацию мы создаем команду амбициозных, всесторонне развитых и полных творческого потенциала специалистов, создающих центр развития инновационных проектов в Казахстане!",
+    "team": [
+      {
+        "name": "Мадиев Магжан",
+        "position": "Генеральный директор",
+        "email": "ceo@astanahub.com"
+      },
+      {
+        "name": "Байтемирова Назгуль",
+        "position": "Управляющий директор",
+        "email": "n.baitemirova@astanahub.com"
+      },
+      {
+        "name": "Ускембаев Танат",
+        "position": "Управляющий директор",
+        "email": "t.uskembayev@astanahub.com"
+      },
+      {
+        "name": "Тлеумуратов Азиз",
+        "position": "Управляющий директор",
+        "email": "a.tleumuratov@astanahub.com"
+      },
+      {
+        "name": "Егеубаева Жанерке",
+        "position": "Управляющий директор",
+        "email": "zh.egeubayeva@astanahub.com"
+      },
+      {
+        "name": "Ахметова Дания",
+        "position": "Директор Филиала Digital Bridge",
+        "email": "d.akhmetova@astanahub.com"
+      },
+      {
+        "name": "Тё Валерия",
+        "position": "Управляющий директор",
+        "email": "v.tyo@astanahub.com"
+      },
+      {
+        "name": "Абулкасымова Мадина",
+        "position": "Директор офиса развития инфраструктуры",
+        "email": "infrastructure@astanahub.com"
+      },
+      {
+        "name": "Ризванова Кристина",
+        "position": "Директор офиса PR и маркетинга",
+        "email": "marketing@astanahub.com"
+      },
+      {
+        "name": "Кушербаева Жанара",
+        "position": "Директор проектного офиса",
+        "email": "project@astanahub.com"
+      },
+      {
+        "name": "Марден Альмира",
+        "position": "Директор офиса ивентов",
+        "email": "events@astanahub.com"
+      },
+      {
+        "name": "Утегулов Анарбек",
+        "position": "Директор офиса Технологических центров",
+        "email": "techcenters@astanahub.com"
+      },
+      {
+        "name": "Абилгазинов Ашимбек",
+        "position": "Директор офиса бизнес-программ",
+        "email": "business.programs@astanahub.com"
+      },
+      {
+        "name": "Калыбекова Жансая",
+        "position": "Директор офиса регулирования участников",
+        "email": "reg@astanahub.com"
+      },
+      {
+        "name": "Жумагулов Данияр",
+        "position": "Директор офиса международных отношений и инвестиций",
+        "email": "investrelations@astanahub.com"
+      },
+      {
+        "name": "Айбашпанов Диан",
+        "position": "Директор офиса регионального развития",
+        "email": "regdev@astanahub.com"
+      },
+      {
+        "name": "Мыктыбаева Гаухар",
+        "position": "Руководитель службы контроля качества",
+        "email": "quality@astanahub.com"
+      },
+      {
+        "name": "Закарин Нурмахан",
+        "position": "Директор офиса поддержки участников",
+        "email": "customers@astanahub.com"
+      },
+      {
+        "name": "Даулбаева Алия",
+        "position": "Директор финансового офиса",
+        "email": "finance@astanahub.com"
+      },
+      {
+        "name": "Смаилова Асель",
+        "position": "Директор офиса юридического сопровождения",
+        "email": "legal.procurement@astanahub.com"
+      },
+      {
+        "name": "Кожахметов Азамат",
+        "position": "Agile coach",
+        "email": "a.kozhakhmetov@astanahub.com"
+      },
+      {
+        "name": "Жунусова Марья",
+        "position": "Руководитель службы мониторинга",
+        "email": "monitoring@astanahub.com"
+      },
+      {
+        "name": "Кудабаева Азиза",
+        "position": "Директор HR офиса",
+        "email": "cv@astanahub.com"
+      },
+      {
+        "name": "Жумадилова Жулдыз",
+        "position": "Директор офиса программ финансирования",
+        "email": "funding@astanahub.com"
+      },
+      {
+        "name": "Исмақан Темірболат",
+        "position": "Руководитель службы корпоративного управления",
+        "email": "t.ismakan@astanahub.com"
+      },
+      {
+        "name": "Нургалиев Дюсембай",
+        "position": "Руководитель службы закупок",
+        "email": "d.nurgaliyev@astanahub.com"
+      },
+      {
+        "name": "Хусаинов Кирилл",
+        "position": "И.о. руководителя технической службы",
+        "email": "technical@astanahub.com"
+      },
+      {
+        "name": "Ахметов Ербол",
+        "position": "Директор офиса Индустрии 4.0",
+        "email": "y.akhmetov@astanahub.com"
+      },
+      {
+        "name": "Славкина Алена",
+        "position": "Директор офиса образовательных программ",
+        "email": "edu@astanahub.com"
+      },
+      {
+        "name": "Киікбаев Алдамжар",
+        "position": "Директор офиса AI - продуктов",
+        "email": "a.kiikbayev@astanahub.com"
+      }
+    ]
+  },
+  "regional_hubs_and_partners": [
+    {
+      "hub_name": "Almaty Hub",
+      "category": "ИНФОРМАЦИОННОЕ СООБЩЕНИЕ",
+      "title": "Аида Дусова назначена директором Almaty Hub",
+      "leader": {
+        "name": "Аида Дусова",
+        "position": "Директор Almaty Hub (филиал АКФ «Астана Хаб»)",
+        "contact_or_social": null
+      }
+    },
+    {
+      "hub_name": "Abai IT Valley",
+      "category": "Региональный менеджер",
+      "title": null,
+      "leader": {
+        "name": "Аяулым Аргынгазина",
+        "position": "Региональный менеджер Abai IT Valley",
+        "contact_or_social": "https://www.instagram.com/abai_it/"
+      }
+    },
+    {
+      "hub_name": "ALATAU HUB",
+      "category": "Директор",
+      "title": null,
+      "leader": {
+        "name": "Бексултан Нуракын",
+        "position": "Директор Alatau Hub",
+        "contact_or_social": "https://www.instagram.com/alatau.hub/"
+      }
+    },
+    {
+      "hub_name": "AQMOLA HUB",
+      "category": "Директор",
+      "title": null,
+      "leader": {
+        "name": "Диан Айбашпанов",
+        "position": "Директор Aqmola Hub",
+        "contact_or_social": "https://www.instagram.com/aqmola.hub/"
+      }
+    },
+    {
+      "hub_name": "AQTOBE HUB",
+      "category": "Директор",
+      "title": null,
+      "leader": {
+        "name": "Сундетов Серик",
+        "position": "Директор Aqtobe Hub",
+        "contact_or_social": "Telegram chat (true)"
+      }
+    },
+    {
+      "hub_name": "SKO Hub",
+      "category": "Директор",
+      "title": null,
+      "leader": {
+        "name": "Нургуль Булатова",
+        "position": "Директор SKO Hub",
+        "contact_or_social": "https://www.instagram.com/sko_hub/"
+      }
+    },
+    {
+      "hub_name": "Zhambyl Hub",
+      "category": "Директор",
+      "title": null,
+      "leader": {
+        "name": "Нуржан Сагындык",
+        "position": "Директор Zhambyl Hub",
+        "contact_or_social": "https://www.instagram.com/zhambyl_hub/"
+      }
+    },
+    {
+      "hub_name": "Ulytau Hub",
+      "category": "Директор",
+      "title": null,
+      "leader": {
+        "name": "Алибек Каратаев",
+        "position": "Директор Ulytau Hub",
+        "contact_or_social": "https://www.instagram.com/ulytau.hub?igsh=ZmN1eWkyMzk0b3Bm"
+      }
+    },
+    {
+      "hub_name": "Turkistan Hub",
+      "category": "Директор",
+      "title": null,
+      "leader": {
+        "name": "Абылай Тастанбеков",
+        "position": "Директор Turkistan Hub",
+        "contact_or_social": "https://www.instagram.com/turkistan.hub/"
+      }
+    },
+    {
+      "hub_name": "Terricon Valley",
+      "category": "CEO Terrion Valley, Региональный менеджер",
+      "title": null,
+      "leader": {
+        "name": "Сабир Ниязов",
+        "position": "CEO Terricon Valley, Regional Manager",
+        "contact_or_social": null
+      }
+    },
+    {
+      "hub_name": "Shymkent Hub",
+      "category": "Директор",
+      "title": null,
+      "leader": {
+        "name": "Козыкеев Тимур",
+        "position": "Директор Shymkent Hub",
+        "contact_or_social": "https://www.instagram.com/shymkent__hub/"
+      }
+    },
+    {
+      "hub_name": "Qostanai IT Hub",
+      "category": "Директор",
+      "title": null,
+      "leader": {
+        "name": "Дамир Мнайдаров",
+        "position": "Директор Qostanai IT Hub",
+        "contact_or_social": "https://www.instagram.com/qostanai.hub/"
+      }
+    },
+    {
+      "hub_name": "Pavlodar Hub",
+      "category": "Региональный менеджер / Директор",
+      "title": null,
+      "leader": {
+        "name": "Нургуль Джумадиева",
+        "position": "Директор Pavlodar Hub",
+        "contact_or_social": "https://www.instagram.com/pavlodar.hub/"
+      }
+    },
+    {
+      "hub_name": "Oskemen Hub",
+      "category": "Директор",
+      "title": null,
+      "leader": {
+        "name": "Дидар Мұратұлы",
+        "position": "Директор Oskemen Hub",
+        "contact_or_social": "https://instagram.com/oskemen_it_hub?igshid=ZWQyN2ExYTkwZQ=="
+      }
+    },
+    {
+      "hub_name": "Mangystau Hub",
+      "category": "Директор",
+      "title": null,
+      "leader": {
+        "name": "Мажтай Айгерим",
+        "position": "Директор Mangystau Hub",
+        "contact_or_social": "https://www.instagram.com/mangystau.hub/"
+      }
+    },
+    {
+      "hub_name": "Kyzylorda Hub",
+      "category": "Директор",
+      "title": null,
+      "leader": {
+        "name": "Тубекбаев Жанарыс",
+        "position": "Директор Kyzylorda Hub",
+        "contact_or_social": "https://www.instagram.com/kyzylordahub/"
+      }
+    },
+    {
+      "hub_name": "Jetisu Digital",
+      "category": "Директор",
+      "title": null,
+      "leader": {
+        "name": "Талгат Аблаев",
+        "position": "Директор Jetisu Digital",
+        "contact_or_social": null
+      }
+    }
+  ]
+}

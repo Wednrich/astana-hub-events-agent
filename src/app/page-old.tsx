@@ -7,7 +7,7 @@ import { EventsSection } from "../components/EventsSection";
 import { AgentAvatar, AgentState } from "../components/AgentAvatar";
 import { Message, City, HubEvent, CITY_LABELS } from "../types";
 
-type ChatApiSource = "groq" | "deepseek" | "openrouter" | "local";
+type ChatApiSource = "openai" | "groq" | "gemini" | "openrouter" | "local";
 
 type ChatApiResponse = {
   city: City;
@@ -19,8 +19,9 @@ type ChatApiResponse = {
 };
 
 const SOURCE_LABEL: Record<ChatApiSource, string> = {
+  openai: "OpenAI",
   groq: "Groq",
-  deepseek: "DeepSeek",
+  gemini: "Gemini",
   openrouter: "OpenRouter",
   local: "локальный fallback",
 };

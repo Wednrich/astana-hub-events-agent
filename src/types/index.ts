@@ -13,7 +13,11 @@ export type City =
   | "Zhezkazgan"
   | "Oskemen"
   | "Petropavl"
-  | "Alatau";
+  | "Alatau"
+  | "Oral"
+  | "Aktau"
+  | "Taraz"
+  | "Atyrau";
 
 // Pretty labels (RU / KZ mix) for the UI
 export const CITY_LABELS: Record<City, string> = {
@@ -29,6 +33,10 @@ export const CITY_LABELS: Record<City, string> = {
   Oskemen: "Өскемен",
   Petropavl: "Петропавловск",
   Alatau: "Алатау",
+  Oral: "Орал",
+  Aktau: "Актау",
+  Taraz: "Тараз",
+  Atyrau: "Атырау",
 };
 
 // All known cities (used by header dropdown, etc.)
@@ -81,4 +89,47 @@ export interface Message {
   role: "user" | "agent";
   content: string;
   timestamp?: number;
+}
+
+// --- Types for SearchService (staff.json structure) ---
+
+/** A single staff member in the central team */
+export interface StaffMember {
+  name: string;
+  position: string;
+  email: string;
+}
+
+/** A regional hub entry (with optional leader info) */
+export interface RegionalHub {
+  hub_name: string;
+  category: string;
+  title: string | null;
+  leader: {
+    name: string;
+    position: string;
+    contact_or_social: string | null;
+  } | null;
+}
+
+/** The top-level shape of staff.json */
+export interface StaffData {
+  astana_hub_central: {
+    organization: string;
+    mission: string;
+    team: StaffMember[];
+  };
+  regional_hubs_and_partners: RegionalHub[];
+}
+
+/** An Instagram post from the scraper dataset */
+export interface InstagramPost {
+  id: string;
+  city?: string;
+  hubUrl?: string;
+  username?: string;
+  caption?: string;
+  date?: string;
+  url?: string;
+  [key: string]: unknown; // allow extra fields from the dataset
 }
